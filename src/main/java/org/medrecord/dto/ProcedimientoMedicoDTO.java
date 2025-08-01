@@ -1,8 +1,17 @@
 package org.medrecord.dto;
 
 public class ProcedimientoMedicoDTO {
+    private int idRegistroProcedimiento;
     private String tipoProcedimiento;
     private String notaAdicional;
+
+    public int getIdRegistroProcedimiento() {
+        return idRegistroProcedimiento;
+    }
+
+    public void setIdRegistroProcedimiento(int idRegistroProcedimiento) {
+        this.idRegistroProcedimiento = idRegistroProcedimiento;
+    }
 
     public String getTipoProcedimiento() {
         return tipoProcedimiento;

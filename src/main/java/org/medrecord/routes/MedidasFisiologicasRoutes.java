@@ -14,6 +14,12 @@ public class MedidasFisiologicasRoutes {
         // Rutas para medidas fisiológicas personales
         app.post("/medidas-personales", medidasFisiologicasController::createMedidaPersonal);
         app.get("/medidas/usuario/{id}", medidasFisiologicasController::getAllMedidasUsuario);
+
+
+        app.put("/medidas-personales/{id}", medidasFisiologicasController::updateRegistroMedida);
+        app.delete("/medidas-personales/{id}", medidasFisiologicasController::deleteRegistroMedida);
+
+
         app.put("/registro-medidas/{id}", medidasFisiologicasController::updateRegistroMedida);
         app.delete("/registro-medidas/{id}", medidasFisiologicasController::deleteRegistroMedida);
     }

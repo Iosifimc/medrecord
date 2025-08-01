@@ -14,6 +14,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class ConsultaCompletaService {
     private final ConsultaMedicaService consultaMedicaService;
@@ -30,6 +31,129 @@ public class ConsultaCompletaService {
         this.prescripcionService = prescripcionService;
         this.registroMedidaService = registroMedidaService;
         this.registroProcedimientoService = registroProcedimientoService;
+    }
+
+    /**
+     * Crea consulta completa desde request del controller
+     */
+    public int createConsultaCompletaFromRequest(Map<String, Object> requestBody) throws SQLException {
+        // Extraer consulta médica
+        Map<String, Object> consultaMap = (Map<String, Object>) requestBody.get("consultaMedica");
+        ConsultaMedica consultaMedica = mapToConsultaMedica(consultaMap);
+
+        // Extraer prescripciones (obligatorias)
+        List<Map<String, Object>> prescripcionesMap = (List<Map<String, Object>>) requestBody.get("prescripciones");
+        List<Prescripcion> prescripciones = mapToPrescripciones(prescripcionesMap);
+
+        // Extraer medidas (opcionales)
+        List<RegistroMedida> medidasConsulta = null;
+        if (requestBody.containsKey("medidasConsulta")) {
+            List<Map<String, Object>> medidasMap = (List<Map<String, Object>>) requestBody.get("medidasConsulta");
+            medidasConsulta = mapToRegistroMedidas(medidasMap);
+        }
+
+        // Extraer procedimientos (opcionales)
+        List<RegistroProcedimiento> procedimientos = null;
+        if (requestBody.containsKey("procedimientos")) {
+            List<Map<String, Object>> procedimientosMap = (List<Map<String, Object>>) requestBody.get("procedimientos");
+            procedimientos = mapToRegistroProcedimientos(procedimientosMap);
+        }
+
+        return createConsultaCompleta(consultaMedica, prescripciones, medidasConsulta, procedimientos);
+    }
+
+    /**
+     * Actualiza consulta completa desde request del controller
+     */
+    public int updateConsultaCompletaFromRequest(int idConsulta, Map<String, Object> requestBody) throws SQLException {
+        // Extraer consulta médica
+        Map<String, Object> consultaMap = (Map<String, Object>) requestBody.get("consultaMedica");
+        ConsultaMedica consultaMedica = mapToConsultaMedica(consultaMap);
+        consultaMedica.setIdConsulta(idConsulta);
+
+        // Extraer prescripciones (obligatorias)
+        List<Map<String, Object>> prescripcionesMap = (List<Map<String, Object>>) requestBody.get("prescripciones");
+        List<Prescripcion> prescripciones = mapToPrescripciones(prescripcionesMap);
+
+        // Extraer medidas (opcionales)
+        List<RegistroMedida> medidasConsulta = null;
+        if (requestBody.containsKey("medidasConsulta")) {
+            List<Map<String, Object>> medidasMap = (List<Map<String, Object>>) requestBody.get("medidasConsulta");
+            medidasConsulta = mapToRegistroMedidas(medidasMap);
+        }
+
+        // Extraer procedimientos (opcionales)
+        List<RegistroProcedimiento> procedimientos = null;
+        if (requestBody.containsKey("procedimientos")) {
+            List<Map<String, Object>> procedimientosMap = (List<Map<String, Object>>) requestBody.get("procedimientos");
+            procedimientos = mapToRegistroProcedimientos(procedimientosMap);
+        }
+
+        return updateConsultaCompleta(consultaMedica, prescripciones, medidasConsulta, procedimientos);
+    }
+
+    // Métodos helper para mapear datos (movidos desde controller)
+    private ConsultaMedica mapToConsultaMedica(Map<String, Object> map) {
+        ConsultaMedica consulta = new ConsultaMedica();
+        consulta.setIdUsuario((Integer) map.get("idUsuario"));
+        consulta.setDiagnostico((String) map.get("diagnostico"));
+        consulta.setDoctor((String) map.get("doctor"));
+        consulta.setClinica((String) map.get("clinica"));
+        consulta.setFechaConsulta(java.sql.Date.valueOf((String) map.get("fechaConsulta")));
+        return consulta;
+    }
+
+    private List<Prescripcion> mapToPrescripciones(List<Map<String, Object>> mapList) {
+        if (mapList == null) return null;
+
+        List<Prescripcion> prescripciones = new ArrayList<>();
+        for (Map<String, Object> map : mapList) {
+            Prescripcion prescripcion = new Prescripcion();
+            if (map.containsKey("idPrescripcion") && map.get("idPrescripcion") != null) {
+                prescripcion.setIdPrescripcion((Integer) map.get("idPrescripcion"));
+            }
+            prescripcion.setNombreMedicamento((String) map.get("nombreMedicamento"));
+            prescripcion.setPresentacionMedicamento((String) map.get("presentacionMedicamento"));
+            prescripcion.setDosis((String) map.get("dosis"));
+            prescripcion.setFrecuencia((String) map.get("frecuencia"));
+            prescripcion.setDuracion((String) map.get("duracion"));
+            prescripciones.add(prescripcion);
+        }
+        return prescripciones;
+    }
+
+    private List<RegistroMedida> mapToRegistroMedidas(List<Map<String, Object>> mapList) {
+        if (mapList == null) return null;
+
+        List<RegistroMedida> medidas = new ArrayList<>();
+        for (Map<String, Object> map : mapList) {
+            RegistroMedida medida = new RegistroMedida();
+            if (map.containsKey("idRegistroMedida") && map.get("idRegistroMedida") != null) {
+                medida.setIdRegistroMedida((Integer) map.get("idRegistroMedida"));
+            }
+            medida.setIdMedida((Integer) map.get("idMedida"));
+            medida.setFechaRegistro(java.sql.Date.valueOf((String) map.get("fechaRegistro")));
+            medida.setValorMedida((Double) map.get("valorMedida"));
+            medida.setNotaAdicional((String) map.get("notaAdicional"));
+            medidas.add(medida);
+        }
+        return medidas;
+    }
+
+    private List<RegistroProcedimiento> mapToRegistroProcedimientos(List<Map<String, Object>> mapList) {
+        if (mapList == null) return null;
+
+        List<RegistroProcedimiento> procedimientos = new ArrayList<>();
+        for (Map<String, Object> map : mapList) {
+            RegistroProcedimiento procedimiento = new RegistroProcedimiento();
+            if (map.containsKey("idRegistroProcedimiento") && map.get("idRegistroProcedimiento") != null) {
+                procedimiento.setIdRegistroProcedimiento((Integer) map.get("idRegistroProcedimiento"));
+            }
+            procedimiento.setIdProcedimiento((Integer) map.get("idProcedimiento"));
+            procedimiento.setNotaAdicional((String) map.get("notaAdicional"));
+            procedimientos.add(procedimiento);
+        }
+        return procedimientos;
     }
 
     /**

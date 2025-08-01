@@ -104,21 +104,20 @@ public class RegistroMedidaRepository {
     public List<MedidasFisiologicasDTO> findAllMedidasUsuario(int idUsuario) throws SQLException {
         List<MedidasFisiologicasDTO> medidasFisiologicasDTOS = new ArrayList<>();
         String query = """
-    SELECT rm.fecha_registro, rm.valor_medida, rm.nota_adicional,
-           cmf.tipo_medida, cmf.unidad_medida
-    FROM REGISTRO_MEDIDA rm
-    INNER JOIN CATALOGO_MEDIDA_FISIOLOGICA cmf ON rm.id_medida = cmf.id_medida
-    WHERE rm.id_usuario = ?;
+        SELECT rm.id_registro_medida, rm.fecha_registro, rm.valor_medida, rm.nota_adicional,
+               cmf.tipo_medida, cmf.unidad_medida
+        FROM REGISTRO_MEDIDA rm
+        INNER JOIN CATALOGO_MEDIDA_FISIOLOGICA cmf ON rm.id_medida = cmf.id_medida
+        WHERE rm.id_usuario = ?;
     """;
 
-        try (
-                Connection conn = DataBaseConfig.getDataSource().getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query);
-        ) {
+        try (Connection conn = DataBaseConfig.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, idUsuario);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     MedidasFisiologicasDTO medidasFisiologicasDTO = new MedidasFisiologicasDTO();
+                    medidasFisiologicasDTO.setIdRegistroMedida(rs.getInt("id_registro_medida"));
                     medidasFisiologicasDTO.setFechaRegistro(rs.getDate("fecha_registro"));
                     medidasFisiologicasDTO.setValorMedida(rs.getDouble("valor_medida"));
                     medidasFisiologicasDTO.setNotaAdicional(rs.getString("nota_adicional"));
@@ -131,24 +130,22 @@ public class RegistroMedidaRepository {
         return medidasFisiologicasDTOS;
     }
 
-
     public List<MedidasFisiologicasDTO> findMedidaConsulta(int idConsulta) throws SQLException {
         List<MedidasFisiologicasDTO> medidasFisiologicasDTOS = new ArrayList<>();
         String query = """
-    SELECT rm.fecha_registro,rm.valor_medida, rm.nota_adicional,
-           cmf.tipo_medida, cmf.unidad_medida
-    FROM REGISTRO_MEDIDA rm
-    INNER JOIN CATALOGO_MEDIDA_FISIOLOGICA cmf ON rm.id_medida = cmf.id_medida
-    WHERE rm.id_consulta = ?;
+        SELECT rm.id_registro_medida, rm.fecha_registro, rm.valor_medida, rm.nota_adicional,
+               cmf.tipo_medida, cmf.unidad_medida
+        FROM REGISTRO_MEDIDA rm
+        INNER JOIN CATALOGO_MEDIDA_FISIOLOGICA cmf ON rm.id_medida = cmf.id_medida
+        WHERE rm.id_consulta = ?;
     """;
-        try (
-                Connection conn = DataBaseConfig.getDataSource().getConnection();
-                PreparedStatement stmt = conn.prepareStatement(query);
-        ) {
+        try (Connection conn = DataBaseConfig.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setInt(1, idConsulta);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     MedidasFisiologicasDTO medidasFisiologicasDTO = new MedidasFisiologicasDTO();
+                    medidasFisiologicasDTO.setIdRegistroMedida(rs.getInt("id_registro_medida"));
                     medidasFisiologicasDTO.setFechaRegistro(rs.getDate("fecha_registro"));
                     medidasFisiologicasDTO.setValorMedida(rs.getDouble("valor_medida"));
                     medidasFisiologicasDTO.setNotaAdicional(rs.getString("nota_adicional"));

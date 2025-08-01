@@ -53,11 +53,11 @@ public class RegistroProcedimientoRepository {
     public List<ProcedimientoMedicoDTO> findProcedimientosConsulta(int idConsulta) throws SQLException {
         List<ProcedimientoMedicoDTO> procedimientos = new ArrayList<>();
         String query = """
-        SELECT cpm.tipo_procedimiento, rp.nota_adicional
+        SELECT rp.id_registro_procedimiento, cpm.tipo_procedimiento, rp.nota_adicional
         FROM REGISTRO_PROCEDIMIENTO rp
         INNER JOIN CATALOGO_PROCEDIMIENTO_MEDICO cpm ON rp.id_procedimiento = cpm.id_procedimiento
         WHERE rp.id_consulta = ?;
-        """;
+    """;
 
         try (Connection conn = DataBaseConfig.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -66,6 +66,7 @@ public class RegistroProcedimientoRepository {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     ProcedimientoMedicoDTO procedimientoMedicoDTO = new ProcedimientoMedicoDTO();
+                    procedimientoMedicoDTO.setIdRegistroProcedimiento(rs.getInt("id_registro_procedimiento"));
                     procedimientoMedicoDTO.setTipoProcedimiento(rs.getString("tipo_procedimiento"));
                     procedimientoMedicoDTO.setNotaAdicional(rs.getString("nota_adicional"));
                     procedimientos.add(procedimientoMedicoDTO);

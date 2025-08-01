@@ -3,12 +3,21 @@ package org.medrecord.dto;
 import java.sql.Date;
 
 public class PerfilUsuarioDTO {
+    private int idUsuario;
     private String nombre;
     private String apellidoPaterno;
     private String apellidoMaterno;
     private Date fechaNacimiento;
     private String correo;
     private String sexo;
+
+    public int getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(int idUsuario) {
+        this.idUsuario = idUsuario;
+    }
 
     public String getNombre() {
         return nombre;

@@ -24,7 +24,7 @@ public class MedidasFisiologicasController {
 
             ctx.status(HttpStatus.CREATED).json(Map.of(
                     "mensaje", "Medida personal creada exitosamente",
-                    "id", idRegistro
+                    "idRegistroMedida", idRegistro
             ));
         } catch (IllegalArgumentException e) {
             ctx.status(HttpStatus.BAD_REQUEST).result(e.getMessage());
@@ -56,14 +56,11 @@ public class MedidasFisiologicasController {
             int idRegistroMedida = Integer.parseInt(ctx.pathParam("id"));
             Map<String, Object> requestBody = ctx.bodyAsClass(Map.class);
 
-            RegistroMedida registroMedida = mapToRegistroMedida(requestBody);
-            registroMedida.setIdRegistroMedida(idRegistroMedida);
-
-            int idActualizado = medidasFisiologicasService.updateRegistroMedida(registroMedida);
+            int idActualizado = medidasFisiologicasService.updateRegistroMedidaFromRequest(idRegistroMedida, requestBody);
 
             ctx.status(HttpStatus.OK).json(Map.of(
                     "mensaje", "Registro de medida actualizado exitosamente",
-                    "id", idActualizado
+                    "idRegistroMedida", idActualizado
             ));
         } catch (NumberFormatException e) {
             ctx.status(HttpStatus.BAD_REQUEST).result("ID de registro de medida inválido");
@@ -80,7 +77,10 @@ public class MedidasFisiologicasController {
         try {
             int idRegistroMedida = Integer.parseInt(ctx.pathParam("id"));
             medidasFisiologicasService.deleteRegistroMedida(idRegistroMedida);
-            ctx.status(HttpStatus.OK).result("Registro de medida eliminado exitosamente");
+            ctx.status(HttpStatus.OK).json(Map.of(
+                    "mensaje", "Registro de medida eliminado exitosamente",
+                    "idRegistroMedidaEliminado", idRegistroMedida
+            ));
         } catch (NumberFormatException e) {
             ctx.status(HttpStatus.BAD_REQUEST).result("ID de registro de medida inválido");
         } catch (IllegalArgumentException e) {
@@ -90,13 +90,5 @@ public class MedidasFisiologicasController {
         } catch (Exception e) {
             ctx.status(HttpStatus.INTERNAL_SERVER_ERROR).result("Error interno del servidor");
         }
-    }
-
-    private RegistroMedida mapToRegistroMedida(Map<String, Object> map) {
-        RegistroMedida medida = new RegistroMedida();
-        medida.setFechaRegistro(java.sql.Date.valueOf((String) map.get("fechaRegistro")));
-        medida.setValorMedida((Double) map.get("valorMedida"));
-        medida.setNotaAdicional((String) map.get("notaAdicional"));
-        return medida;
     }
 }

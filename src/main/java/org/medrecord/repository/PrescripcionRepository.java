@@ -60,7 +60,7 @@ public class PrescripcionRepository {
 
     public List<PrescripcionDTO> findPrescripcionesByConsulta(int idConsulta) throws SQLException {
         List<PrescripcionDTO> prescripcionDTOS = new ArrayList<>();
-        String query = "SELECT * FROM PRESCRIPCION WHERE id_consulta = ?";
+        String query = "SELECT id_prescripcion, nombre_medicamento, presentacion_medicamento, dosis, frecuencia, duracion FROM PRESCRIPCION WHERE id_consulta = ?";
 
         try (Connection conn = DataBaseConfig.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -68,6 +68,7 @@ public class PrescripcionRepository {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     PrescripcionDTO prescripcionDTO = new PrescripcionDTO();
+                    prescripcionDTO.setIdPrescripcion(rs.getInt("id_prescripcion"));
                     prescripcionDTO.setNombreMedicamento(rs.getString("nombre_medicamento"));
                     prescripcionDTO.setPresentacionMedicamento(rs.getString("presentacion_medicamento"));
                     prescripcionDTO.setDosis(rs.getString("dosis"));

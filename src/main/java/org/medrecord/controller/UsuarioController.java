@@ -33,18 +33,15 @@ public class UsuarioController {
     public void create(Context ctx) {
         try {
             Usuario usuario = ctx.bodyAsClass(Usuario.class);
-            usuarioService.createUser(usuario);
 
-            // Obtener el token de verificación generado
-            String token = usuarioService.obtenerTokenVerificacion(usuario.getCorreo());
+            // Delegar toda la lógica al servicio
+            Map<String, Object> result = usuarioService.createUserWithVerification(usuario);
 
             // Establecer cookie con el token de verificación (24 horas)
+            String token = (String) result.get("tokenVerificacion");
             ctx.cookie("verification_token", token, 86400);
 
-            ctx.status(201).json(Map.of(
-                    "mensaje", "Usuario creado exitosamente",
-                    "tokenVerificacion", token
-            ));
+            ctx.status(201).json(result);
         }catch (SQLIntegrityConstraintViolationException e) {
             ctx.status(409).result("Ya existe un usuario con ese correo electrónico.");
         }catch (Exception e) {
@@ -61,7 +58,7 @@ public class UsuarioController {
 
             ctx.status(200).json(Map.of(
                     "mensaje", "Usuario actualizado exitosamente",
-                    "id", id
+                    "idUsuario", id
             ));
         } catch (SQLIntegrityConstraintViolationException e) {
             ctx.status(409).result("Ya existe un usuario con ese correo electrónico.");
@@ -74,7 +71,10 @@ public class UsuarioController {
         try {
             int id = Integer.parseInt(ctx.pathParam("id_usuario"));
             usuarioService.deleteByIdUser(id);
-            ctx.status(200).result("Usuario eliminado");
+            ctx.status(200).json(Map.of(
+                    "mensaje", "Usuario eliminado",
+                    "idUsuarioEliminado", id
+            ));
         } catch (Exception e) {
             ctx.status(400).result("Error al eliminar usuario: " + e.getMessage());
         }
@@ -89,7 +89,11 @@ public class UsuarioController {
             if (usuario != null) {
                 // Establecer cookie de sesión (1 hora)
                 ctx.cookie("session_user_id", String.valueOf(usuario.getIdUsuario()), 3600);
-                ctx.status(200).json(usuario);
+                ctx.status(200).json(Map.of(
+                        "mensaje", "Login exitoso",
+                        "idUsuario", usuario.getIdUsuario(),
+                        "usuario", usuario
+                ));
             } else {
                 ctx.status(401).result("Credenciales incorrectas o cuenta no verificada");
             }
@@ -117,7 +121,10 @@ public class UsuarioController {
             if (verificado) {
                 // Limpiar cookie de verificación
                 ctx.removeCookie("verification_token");
-                ctx.status(200).result("Correo electrónico verificado exitosamente. Ya puedes iniciar sesión.");
+                ctx.status(200).json(Map.of(
+                        "mensaje", "Correo electrónico verificado exitosamente. Ya puedes iniciar sesión.",
+                        "verificado", true
+                ));
             } else {
                 ctx.status(400).result("Token de verificación inválido o expirado");
             }
@@ -132,7 +139,7 @@ public class UsuarioController {
             String token = ctx.cookie("verification_token");
 
             if (token == null) {
-                ctx.status(200).json(java.util.Map.of(
+                ctx.status(200).json(Map.of(
                         "verificado", false,
                         "mensaje", "No hay token de verificación"
                 ));
@@ -142,14 +149,15 @@ public class UsuarioController {
             Usuario usuario = usuarioService.findByTokenVerificacion(token);
 
             if (usuario != null) {
-                ctx.status(200).json(java.util.Map.of(
+                ctx.status(200).json(Map.of(
                         "verificado", false,
                         "correo", usuario.getCorreo(),
                         "mensaje", "Cuenta pendiente de verificación",
-                        "token", token
+                        "token", token,
+                        "idUsuario", usuario.getIdUsuario()
                 ));
             } else {
-                ctx.status(200).json(java.util.Map.of(
+                ctx.status(200).json(Map.of(
                         "verificado", false,
                         "mensaje", "Token inválido o expirado"
                 ));
@@ -162,9 +170,13 @@ public class UsuarioController {
     // LOGOUT
     public void logout(Context ctx) {
         try {
+            String userId = ctx.cookie("session_user_id");
             ctx.removeCookie("session_user_id");
             ctx.removeCookie("verification_token");
-            ctx.status(200).result("Sesión cerrada exitosamente");
+            ctx.status(200).json(Map.of(
+                    "mensaje", "Sesión cerrada exitosamente",
+                    "idUsuarioDeslogueado", userId != null ? userId : "no_session"
+            ));
         } catch (Exception e) {
             ctx.status(400).result("Error al cerrar sesión: " + e.getMessage());
         }

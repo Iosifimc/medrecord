@@ -41,6 +41,16 @@ public class ConsultaMedicaService {
         return consultaMedicaRepository.findConsultasByUsuario(idUsuario);
     }
 
+    /**
+     * Obtiene una consulta médica básica por ID (sin prescripciones, medidas o procedimientos)
+     */
+    public ConsultaMedicaDTO getConsultaBasica(int idConsulta) throws SQLException {
+        if (idConsulta <= 0) {
+            throw new IllegalArgumentException("El ID de la consulta debe ser mayor a 0");
+        }
+        return consultaMedicaRepository.findConsultaCompleta(idConsulta);
+    }
+
     private void validateConsultaMedica(ConsultaMedica consultaMedica) {
         if (consultaMedica == null) {
             throw new IllegalArgumentException("La consulta médica no puede ser nula");

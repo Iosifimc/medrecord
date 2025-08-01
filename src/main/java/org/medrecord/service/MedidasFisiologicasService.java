@@ -6,12 +6,31 @@ import org.medrecord.repository.RegistroMedidaRepository;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 public class MedidasFisiologicasService {
     private final RegistroMedidaRepository registroMedidaRepository;
 
     public MedidasFisiologicasService(RegistroMedidaRepository registroMedidaRepository) {
         this.registroMedidaRepository = registroMedidaRepository;
+    }
+
+    /**
+     * Actualiza registro de medida desde request del controller
+     */
+    public int updateRegistroMedidaFromRequest(int idRegistroMedida, Map<String, Object> requestBody) throws SQLException {
+        RegistroMedida medida = mapToRegistroMedida(requestBody);
+        medida.setIdRegistroMedida(idRegistroMedida);
+        return updateRegistroMedida(medida);
+    }
+
+    // Método helper movido desde controller
+    private RegistroMedida mapToRegistroMedida(Map<String, Object> map) {
+        RegistroMedida medida = new RegistroMedida();
+        medida.setFechaRegistro(java.sql.Date.valueOf((String) map.get("fechaRegistro")));
+        medida.setValorMedida((Double) map.get("valorMedida"));
+        medida.setNotaAdicional((String) map.get("notaAdicional"));
+        return medida;
     }
 
     public int createMedidaPersonal(RegistroMedida registroMedida) throws SQLException {

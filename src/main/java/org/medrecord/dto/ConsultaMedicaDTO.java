@@ -1,11 +1,11 @@
 package org.medrecord.dto;
 
-
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConsultaMedicaDTO {
+    private int idConsulta;
     private String diagnostico;
     private String doctor;
     private String clinica;
@@ -14,6 +14,14 @@ public class ConsultaMedicaDTO {
     private List<PrescripcionDTO> prescripcionDTOS = new ArrayList<>();
     private List<MedidasFisiologicasDTO> medidasFisiologicasDTOS = new ArrayList<>();
     private List<ProcedimientoMedicoDTO> procedimientoMedicoDTOS = new ArrayList<>();
+
+    public int getIdConsulta() {
+        return idConsulta;
+    }
+
+    public void setIdConsulta(int idConsulta) {
+        this.idConsulta = idConsulta;
+    }
 
     public String getDiagnostico() {
         return diagnostico;

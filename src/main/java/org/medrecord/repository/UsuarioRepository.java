@@ -14,7 +14,7 @@ public class UsuarioRepository {
 
     public PerfilUsuarioDTO findByIdUser(int idUsuario) throws SQLException {
         PerfilUsuarioDTO perfilUsuarioDTO = null;
-        String query = "SELECT * FROM USUARIO WHERE id_usuario = ?";
+        String query = "SELECT id_usuario, nombre, apellido_paterno, apellido_materno, email, fecha_nacimiento, sexo FROM USUARIO WHERE id_usuario = ?";
 
         try (Connection conn = DataBaseConfig.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -24,6 +24,7 @@ public class UsuarioRepository {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     perfilUsuarioDTO = new PerfilUsuarioDTO();
+                    perfilUsuarioDTO.setIdUsuario(rs.getInt("id_usuario"));
                     perfilUsuarioDTO.setNombre(rs.getString("nombre"));
                     perfilUsuarioDTO.setApellidoPaterno(rs.getString("apellido_paterno"));
                     perfilUsuarioDTO.setApellidoMaterno(rs.getString("apellido_materno"));

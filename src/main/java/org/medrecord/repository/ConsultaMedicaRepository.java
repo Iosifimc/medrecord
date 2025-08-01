@@ -59,7 +59,7 @@ public class ConsultaMedicaRepository {
 
     public List<ConsultaMedicaDTO> findConsultasByUsuario(int idUsuario) throws SQLException {
         List<ConsultaMedicaDTO> consultaMedicaDTOS = new ArrayList<>();
-        String query = "SELECT diagnostico, doctor, clinica, fecha_consulta FROM CONSULTA_MEDICA WHERE id_usuario = ? ORDER BY fecha_consulta DESC";
+        String query = "SELECT id_consulta, diagnostico, doctor, clinica, fecha_consulta FROM CONSULTA_MEDICA WHERE id_usuario = ? ORDER BY fecha_consulta DESC";
 
         try (Connection conn = DataBaseConfig.getDataSource().getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -67,6 +67,7 @@ public class ConsultaMedicaRepository {
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     ConsultaMedicaDTO consultaMedicaDTO = new ConsultaMedicaDTO();
+                    consultaMedicaDTO.setIdConsulta(rs.getInt("id_consulta"));
                     consultaMedicaDTO.setDiagnostico(rs.getString("diagnostico"));
                     consultaMedicaDTO.setDoctor(rs.getString("doctor"));
                     consultaMedicaDTO.setClinica(rs.getString("clinica"));
@@ -76,6 +77,27 @@ public class ConsultaMedicaRepository {
             }
         }
         return consultaMedicaDTOS;
+    }
+
+    public ConsultaMedicaDTO findConsultaCompleta(int idConsulta) throws SQLException {
+        ConsultaMedicaDTO consultaMedicaDTO = null;
+        String query = "SELECT id_consulta, diagnostico, doctor, clinica, fecha_consulta FROM CONSULTA_MEDICA WHERE id_consulta = ?";
+
+        try (Connection conn = DataBaseConfig.getDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setInt(1, idConsulta);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    consultaMedicaDTO = new ConsultaMedicaDTO();
+                    consultaMedicaDTO.setIdConsulta(rs.getInt("id_consulta"));
+                    consultaMedicaDTO.setDiagnostico(rs.getString("diagnostico"));
+                    consultaMedicaDTO.setDoctor(rs.getString("doctor"));
+                    consultaMedicaDTO.setClinica(rs.getString("clinica"));
+                    consultaMedicaDTO.setFechaConsulta(rs.getDate("fecha_consulta"));
+                }
+            }
+        }
+        return consultaMedicaDTO;
     }
 
 

@@ -1,11 +1,20 @@
 package org.medrecord.dto;
 
 public class PrescripcionDTO {
+    private int idPrescripcion;
     private String nombreMedicamento;
     private String presentacionMedicamento;
     private String dosis;
     private String frecuencia;
     private String duracion;
+
+    public int getIdPrescripcion() {
+        return idPrescripcion;
+    }
+
+    public void setIdPrescripcion(int idPrescripcion) {
+        this.idPrescripcion = idPrescripcion;
+    }
 
     public String getNombreMedicamento() {
         return nombreMedicamento;
